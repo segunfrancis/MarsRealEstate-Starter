@@ -46,6 +46,10 @@ class OverviewViewModel : ViewModel() {
     val properties: LiveData<List<MarsProperty>>
         get() = _properties
 
+    private val _navigateTiSelectedProperty = MutableLiveData<MarsProperty>()
+    val navigateTiSelectedProperty: LiveData<MarsProperty>
+        get() = _navigateTiSelectedProperty
+
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
@@ -65,10 +69,10 @@ class OverviewViewModel : ViewModel() {
             try {
                 _status.value = MarsApiStatus.LOADING
                 val listResult = getPropertiesDeferred.await()
-                _status.value = MarsApiStatus.DONE
                 if (listResult.isNotEmpty()) {
                     _properties.value = listResult
                 }
+                _status.value = MarsApiStatus.DONE
             } catch (e: Exception) {
                 _status.value = MarsApiStatus.ERROR
                 _properties.value = ArrayList() // Clears the RecyclerView
@@ -78,6 +82,14 @@ class OverviewViewModel : ViewModel() {
 
     fun updateFilter(filter: MarsApiFilter) {
         getMarsRealEstateProperties(filter)
+    }
+
+    fun displayPropertyDetails(marsProperty: MarsProperty) {
+        _navigateTiSelectedProperty.value = marsProperty
+    }
+
+    fun displayPropertyDetailsComplete() {
+        _navigateTiSelectedProperty.value = null
     }
 
     override fun onCleared() {
